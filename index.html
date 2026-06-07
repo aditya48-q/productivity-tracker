@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Premium Productivity Dashboard</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/premium.css">
+</head>
+<body>
+  <!-- Ambient Premium Visuals -->
+  <canvas id="particles-canvas"></canvas>
+  <div class="ambient-orb orb-1"></div>
+  <div class="ambient-orb orb-2"></div>
+  <div class="ambient-orb orb-3"></div>
+
+  <!-- Custom Cursor -->
+  <div class="cursor-dot"></div>
+  <div class="cursor-outline"></div>
+
+  <!-- App Layout -->
+  <div class="app-container">
+    
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <i class="fa-solid fa-bolt"></i>
+          <span>FocusFlow</span>
+        </div>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" data-target="dashboard">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="#" class="nav-item" data-target="tasks">
+          <i class="fa-solid fa-list-check"></i>
+          <span>Tasks</span>
+        </a>
+        <a href="#" class="nav-item" data-target="pomodoro">
+          <i class="fa-solid fa-stopwatch"></i>
+          <span>Pomodoro</span>
+        </a>
+        <a href="#" class="nav-item" data-target="analytics">
+          <i class="fa-solid fa-chart-line"></i>
+          <span>Analytics</span>
+        </a>
+        <a href="#" class="nav-item" data-target="settings">
+          <i class="fa-solid fa-gear"></i>
+          <span>Settings</span>
+        </a>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="streak-badge">
+          <i class="fa-solid fa-fire"></i>
+          <span id="streak-counter">0 Day Streak</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      
+      <!-- Top Navbar -->
+      <header class="top-nav">
+        <div class="search-bar">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="global-search" placeholder="Search tasks (Ctrl+F)">
+        </div>
+        
+        <div class="top-actions">
+          <button class="btn btn-icon" id="btn-theme-toggle" aria-label="Toggle Theme">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+          <button class="btn btn-primary" id="btn-new-task">
+            <i class="fa-solid fa-plus"></i> New Task
+          </button>
+        </div>
+      </header>
+
+      <!-- Dashboard View -->
+      <div class="view-section active" id="view-dashboard">
+        <div class="hero-header">
+          <h1>Welcome back, <span class="accent-text">Achiever</span></h1>
+          <p class="text-secondary">Here's your productivity overview for today.</p>
+        </div>
+        
+        <!-- Hero Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon bg-blue"><i class="fa-solid fa-list"></i></div>
+            <div class="stat-content">
+              <span class="stat-value" id="stat-today-tasks">0</span>
+              <span class="stat-label">Today's Tasks</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon bg-green"><i class="fa-solid fa-check"></i></div>
+            <div class="stat-content">
+              <span class="stat-value" id="stat-completed">0</span>
+              <span class="stat-label">Completed</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon bg-purple"><i class="fa-solid fa-bolt"></i></div>
+            <div class="stat-content">
+              <span class="stat-value" id="stat-productivity">0%</span>
+              <span class="stat-label">Productivity</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon bg-orange"><i class="fa-solid fa-clock"></i></div>
+            <div class="stat-content">
+              <span class="stat-value" id="stat-focus-time">0h 0m</span>
+              <span class="stat-label">Focus Time</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="dashboard-split">
+          <!-- Recent Tasks -->
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Recent Tasks</h2>
+              <button class="btn btn-ghost" id="btn-view-all-tasks">View All</button>
+            </div>
+            <div class="task-list" id="dashboard-task-list">
+              <!-- Tasks injected here -->
+            </div>
+          </div>
+          
+          <!-- Mini Pomodoro -->
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Focus Session</h2>
+            </div>
+            <div class="mini-pomodoro">
+              <div class="timer-display" id="mini-timer-display">25:00</div>
+              <div class="timer-controls">
+                <button class="btn btn-primary" id="btn-mini-timer-toggle">Start</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tasks View -->
+      <div class="view-section" id="view-tasks">
+        <div class="panel-header">
+          <h2>Task Management</h2>
+          <div class="filter-controls">
+            <select id="filter-status" class="select-input">
+              <option value="all">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="in-progress">In Progress</option>
+              <option value="completed">Completed</option>
+            </select>
+            <select id="filter-priority" class="select-input">
+              <option value="all">All Priorities</option>
+              <option value="critical">Critical</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+            <select id="sort-tasks" class="select-input">
+              <option value="date-desc">Newest First</option>
+              <option value="date-asc">Oldest First</option>
+              <option value="priority">Priority</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="task-board">
+          <div class="task-column">
+            <h3>Pending</h3>
+            <div class="task-list drag-container" id="list-pending" data-status="pending"></div>
+          </div>
+          <div class="task-column">
+            <h3>In Progress</h3>
+            <div class="task-list drag-container" id="list-in-progress" data-status="in-progress"></div>
+          </div>
+          <div class="task-column">
+            <h3>Completed</h3>
+            <div class="task-list drag-container" id="list-completed" data-status="completed"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pomodoro View -->
+      <div class="view-section" id="view-pomodoro">
+        <div class="pomodoro-container">
+          <div class="pomodoro-modes">
+            <button class="mode-btn active" data-mode="pomodoro">Pomodoro</button>
+            <button class="mode-btn" data-mode="short-break">Short Break</button>
+            <button class="mode-btn" data-mode="long-break">Long Break</button>
+          </div>
+          
+          <div class="timer-ring-container">
+            <svg class="timer-ring" viewBox="0 0 100 100">
+              <circle class="timer-ring-bg" cx="50" cy="50" r="45"></circle>
+              <circle class="timer-ring-progress" cx="50" cy="50" r="45"></circle>
+            </svg>
+            <div class="timer-time" id="main-timer-display">25:00</div>
+          </div>
+          
+          <div class="timer-actions">
+            <button class="btn btn-icon btn-large" id="btn-timer-reset" aria-label="Reset Timer">
+              <i class="fa-solid fa-rotate-right"></i>
+            </button>
+            <button class="btn btn-primary btn-xl" id="btn-timer-main-toggle">
+              Start Focus
+            </button>
+            <button class="btn btn-icon btn-large" id="btn-timer-skip" aria-label="Skip Session">
+              <i class="fa-solid fa-forward-step"></i>
+            </button>
+          </div>
+          
+          <div class="session-counter">
+            Session <span id="session-count">0</span>/4
+          </div>
+        </div>
+      </div>
+
+      <!-- Analytics View -->
+      <div class="view-section" id="view-analytics">
+        <div class="panel-header">
+          <h2>Productivity Analytics</h2>
+        </div>
+        <div class="charts-grid">
+          <div class="chart-card">
+            <h3>Weekly Focus Hours</h3>
+            <canvas id="chart-focus"></canvas>
+          </div>
+          <div class="chart-card">
+            <h3>Task Completion</h3>
+            <canvas id="chart-tasks"></canvas>
+          </div>
+          <div class="chart-card full-width">
+            <h3>Category Distribution</h3>
+            <canvas id="chart-categories"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings View -->
+      <div class="view-section" id="view-settings">
+        <div class="panel-header">
+          <h2>Settings</h2>
+        </div>
+        <div class="settings-grid">
+          <div class="settings-panel">
+            <h3>Data Management</h3>
+            <p class="text-secondary">Export or import your tasks and history.</p>
+            <div class="settings-actions">
+              <button class="btn btn-secondary" id="btn-export-data">Export Data</button>
+              <label class="btn btn-secondary cursor-pointer">
+                Import Data
+                <input type="file" id="input-import-data" accept=".json" hidden>
+              </label>
+            </div>
+            <div class="danger-zone mt-4">
+              <button class="btn btn-danger" id="btn-reset-data">Reset All Data</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Task Modal -->
+  <div class="modal-overlay" id="task-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-title">Create Task</h2>
+        <button class="btn-close" id="btn-close-modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="task-form">
+        <input type="hidden" id="task-id">
+        <div class="form-group">
+          <label>Title</label>
+          <input type="text" id="task-title" class="input-field" required placeholder="What needs to be done?">
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="task-desc" class="input-field" rows="3" placeholder="Add some details..."></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Priority</label>
+            <select id="task-priority" class="select-input">
+              <option value="low">Low</option>
+              <option value="medium" selected>Medium</option>
+              <option value="high">High</option>
+              <option value="critical">Critical</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <select id="task-category" class="select-input">
+              <option value="work">Work</option>
+              <option value="personal">Personal</option>
+              <option value="study">Study</option>
+              <option value="health">Health</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Due Date</label>
+          <input type="date" id="task-due" class="input-field">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="btn-cancel-task">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-save-task">Save Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Onboarding Modal -->
+  <div class="modal-overlay" id="onboarding-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="onboarding-title">Welcome to FocusFlow</h2>
+      </div>
+      <form id="onboarding-form">
+        <p class="text-secondary" style="margin-bottom: 24px;">Let's personalize your dashboard. What is your primary goal?</p>
+        <div class="form-group">
+          <select id="onboard-goal" class="select-input" required>
+            <option value="placements">Placements</option>
+            <option value="college">College</option>
+            <option value="personal">Personal Growth</option>
+            <option value="work">Work</option>
+            <option value="exams">Competitive Exams</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Preferred study hours per day</label>
+          <input type="number" id="onboard-hours" class="input-field" value="4" min="1" max="16">
+        </div>
+        <div class="form-group">
+          <label>Preferred focus session length (minutes)</label>
+          <input type="number" id="onboard-session" class="input-field" value="25" min="15" max="90">
+        </div>
+        <div class="form-group">
+          <label>Primary task category</label>
+          <select id="onboard-category" class="select-input">
+            <option value="work">Work</option>
+            <option value="study" selected>Study</option>
+            <option value="personal">Personal</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="btn btn-primary" id="btn-finish-onboarding">Start Focusing</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- SortableJS for Drag and Drop -->
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+  <!-- Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- App Modules -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
